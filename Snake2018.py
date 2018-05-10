@@ -67,7 +67,7 @@ class Head (pygame.sprite.Sprite):
 		self.rect.y = y
 		self.direction = ""
 		self.score = 0
-		self.lives = 1
+		self.lives = 2
 		self.snake = []
 		self.snake.append(self)
 
@@ -254,24 +254,12 @@ class App(object):
 			self.startScreenDone = self.manageStartScreenInput()
 			if self.startScreenDone:
 				print "startScreenDone fin loop: ", self.startScreenDone
-
 		
-		'''
-		screen.fill(BLACK)
-		screen.blit(self.snakeText, (310,10))
-		if self.credits < 1:
-			screen.blit(self.insertCoinText, (240,350))
-		else:
-			screen.blit(self.pressStartText, (240,350))
-		self.creditsText = FONT_20.render(str("credits  ") + str(self.credits), True, WHITE)
-		print "credit texts dans showStartScreen: ", self.credits
-		screen.blit(self.creditsText, (550,670))
-		pygame.display.update()
-		'''
 
 	def createInitSprites(self):
 				
 		self.food = Cell(300,300, RED, COTE_FOOD)
+		self.resetRandomFood()
 		self.all_sprite_list.add(self.all_snake_list)
 		self.all_sprite_list.add(self.all_wall_list)
 		self.all_sprite_list.add(self.head)
@@ -289,6 +277,7 @@ class App(object):
 				elif event.key == pygame.K_1 and self.credits>0:
 					print "key 1 in screen input"
 					print "self.credit: ", self.credits
+					self.credits = self.credits -1
 					return True
 									
 				elif event.key == pygame.K_5:
@@ -337,7 +326,9 @@ class App(object):
 		self.food.rect.y = y
 
 	def resetPlayer(self):
-		pass
+		self.head.score = 0
+		self.head.lives = 2
+		print "reset player"
 
 
 	def resetSnakePosition(self):
@@ -357,6 +348,8 @@ class App(object):
 		center_y = self.centerVerticalText()
 		wait_a_bit = False
 		self.gameDone = False
+		self.resetPlayer()
+		self.resetSnakePosition()
 
 		while not self.gameDone:
 			
@@ -388,9 +381,10 @@ class App(object):
 					#break
 				else:
 					screen.blit(BOOM_WALL, (self.centerRenderedText(BOOM_WALL.get_width()), center_y))
-				self.head.lives -= 1
-				self.resetSnakePosition()
-				wait_a_bit = True
+					self.head.lives -= 1
+					self.resetSnakePosition()
+					self.resetRandomFood()
+					wait_a_bit = True
 				
 			
 			#Collision avec queue de serpent			
@@ -406,6 +400,7 @@ class App(object):
 					screen.blit(BOOM_SNAKE, (self.centerRenderedText(BOOM_SNAKE.get_width()), center_y))
 					self.head.lives -= 1
 					self.resetSnakePosition()
+					self.resetRandomFood()
 					wait_a_bit = True
 			
 			self.all_sprite_list.draw(screen)
@@ -420,6 +415,7 @@ class App(object):
 			blah = self.manageGameInput()
 			if self.gameDone:
 				self.food.kill()
+				#self.resetPlayer()
 			#self.gameDone = self.manageGameInput()
 
     	#mainDone = False
@@ -477,6 +473,7 @@ if __name__ == '__main__':
     while not app.appDone:
     	print("on recommence")
     	app.startScreen()
+    	print ("snake head: "), app.head
     	app.mainLoop()
     #for cell in app.all_snake_list:
     #	print cell
